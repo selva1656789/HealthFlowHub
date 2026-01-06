@@ -5,7 +5,8 @@ import {
   Calendar, 
   TrendingUp, 
   AlertTriangle, 
-  BarChart3 
+  BarChart3,
+  CalendarDays 
 } from "lucide-react";
 import {
   Sidebar,
@@ -55,6 +56,11 @@ const menuItems = [
     title: "Performance Monitoring",
     url: "/performance",
     icon: BarChart3,
+  },
+  {
+    title: "Appointments",
+    url: "/appointments",
+    icon: CalendarDays,
   },
 ];
 

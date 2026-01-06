@@ -1,113 +1,223 @@
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ResourceNode } from "@/components/resource-node";
 import { Button } from "@/components/ui/button";
-import { Bed, Ambulance, Stethoscope, Building2, RefreshCw } from "lucide-react";
+import { Bed, Ambulance, Stethoscope, Building2, Plus, Minus, Brain, Zap, ArrowLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
-export default function ResourceAllocation() {
-  //todo: remove mock functionality
-  const resources = [
-    { id: "beds", type: "Hospital Beds", icon: Bed, status: "inuse" as const, count: 85, total: 120 },
-    { id: "icu", type: "ICU Units", icon: Building2, status: "critical" as const, count: 18, total: 20 },
-    { id: "doctors", type: "Doctors Available", icon: Stethoscope, status: "available" as const, count: 15, total: 25 },
-    { id: "ambulance", type: "Ambulances", icon: Ambulance, status: "available" as const, count: 3, total: 8 },
-  ];
+interface ResourceAllocationProps {
+  onBack?: () => void;
+}
 
-  const connections = [
-    { from: "Emergency Ward", to: "ICU", patients: 3 },
-    { from: "ICU", to: "General Ward", patients: 2 },
-    { from: "Ambulance", to: "Emergency Ward", patients: 5 },
-  ];
+export default function ResourceAllocation({ onBack }: ResourceAllocationProps) {
+  const [resources, setResources] = useState([
+    { id: 1, name: 'Hospital Beds', type: 'beds', total_count: 120, available_count: 85, current_allocation: 35, status: 'available', location: 'General Ward' },
+    { id: 2, name: 'ICU Units', type: 'icu', total_count: 20, available_count: 18, current_allocation: 2, status: 'critical', location: 'ICU' },
+    { id: 3, name: 'Doctors', type: 'staff', total_count: 25, available_count: 15, current_allocation: 10, status: 'available', location: 'Hospital' },
+    { id: 4, name: 'Ambulances', type: 'vehicles', total_count: 8, available_count: 3, current_allocation: 5, status: 'available', location: 'Parking' }
+  ]);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    const savedDarkMode = localStorage.getItem('darkMode');
+    const initialDarkMode = savedDarkMode ? JSON.parse(savedDarkMode) : false;
+    setDarkMode(initialDarkMode);
+    if (initialDarkMode) {
+      document.documentElement.classList.add('dark');
+    }
+  }, []);
+
+  const adjustResource = (resourceId: number, change: number) => {
+    setResources(prev => prev.map(resource => {
+      if (resource.id === resourceId) {
+        const newAvailable = Math.max(0, Math.min(resource.total_count, resource.available_count + change));
+        return { ...resource, available_count: newAvailable };
+      }
+      return resource;
+    }));
+  };
+
+  const autoAllocate = async () => {
+    setIsProcessing(true);
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    setResources(prev => prev.map(resource => ({
+      ...resource,
+      available_count: Math.floor(resource.total_count * 0.8)
+    })));
+    setIsProcessing(false);
+  };
+
+  const getIcon = (type: string) => {
+    switch (type) {
+      case 'beds': return Bed;
+      case 'icu': return Building2;
+      case 'staff': return Stethoscope;
+      case 'vehicles': return Ambulance;
+      default: return Bed;
+    }
+  };
+
+  const getStatus = (available: number, total: number) => {
+    const percentage = (available / total) * 100;
+    if (percentage < 20) return 'critical';
+    if (percentage < 50) return 'inuse';
+    return 'available';
+  };
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold">Resource Allocation</h1>
-          <p className="text-muted-foreground">Manage and optimize hospital resources</p>
+    <div className={`min-h-screen transition-all duration-500 ${darkMode ? 'dark bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900' : 'bg-gradient-to-br from-blue-50 via-white to-indigo-50'}`}>
+      <div className="p-6 space-y-6">
+      <div className="flex justify-between items-center">
+        <div className="flex items-center gap-4">
+          <Button
+            onClick={() => onBack && onBack()}
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Dashboard
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Resource Allocation</h1>
+            <p className="text-gray-600 dark:text-gray-300">Manage hospital resources with AI-powered allocation</p>
+          </div>
         </div>
-        <Button 
-          onClick={() => console.log('Optimize allocation')}
-          data-testid="button-optimize-allocation"
+        <Button
+          onClick={() => {
+            const newDarkMode = !darkMode;
+            setDarkMode(newDarkMode);
+            localStorage.setItem('darkMode', JSON.stringify(newDarkMode));
+            if (newDarkMode) {
+              document.documentElement.classList.add('dark');
+            } else {
+              document.documentElement.classList.remove('dark');
+            }
+          }}
+          variant="outline"
+          className="dark:bg-gray-800 dark:text-white dark:border-gray-600"
         >
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Optimize Allocation
+          {darkMode ? '☀️ Light' : '🌙 Dark'}
         </Button>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Resource Status</CardTitle>
-            <p className="text-sm text-muted-foreground">Current availability and usage</p>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {resources.map(resource => (
-              <ResourceNode key={resource.id} {...resource} />
-            ))}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Resource Flow</CardTitle>
-            <p className="text-sm text-muted-foreground">Patient movement between departments</p>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {connections.map((conn, idx) => (
-              <div 
-                key={idx} 
-                className="flex items-center gap-3 p-3 rounded-md bg-muted/50"
-                data-testid={`flow-${idx}`}
+      <Card className="backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 border border-white/20 shadow-xl">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
+                <Brain className="h-5 w-5 text-purple-500" />
+                AI Resource Management
+              </CardTitle>
+              <p className="text-sm text-gray-600 dark:text-gray-300">Automatic allocation based on demand prediction</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge className="bg-green-100 text-green-800 animate-pulse">
+                <Brain className="h-3 w-3 mr-1" />
+                AI Active
+              </Badge>
+              <Button
+                onClick={autoAllocate}
+                disabled={isProcessing}
+                className="bg-gradient-to-r from-purple-500 to-blue-500 text-white border-0 px-4 py-2"
               >
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline">{conn.from}</Badge>
-                    <div className="flex-1 h-px bg-border relative">
-                      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-0 h-0 border-l-4 border-t-2 border-b-2 border-l-border border-t-transparent border-b-transparent" />
+                <Zap className="h-4 w-4 mr-2" />
+                {isProcessing ? 'Processing...' : 'Auto Allocate'}
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {resources.map((resource) => {
+            const Icon = getIcon(resource.type);
+            const percentage = (resource.available_count / resource.total_count) * 100;
+            const status = getStatus(resource.available_count, resource.total_count);
+            
+            return (
+              <div key={resource.id} className="flex items-center justify-between p-4 border rounded-lg dark:border-gray-600">
+                <div className="flex items-center gap-4">
+                  <div className={`flex h-12 w-12 items-center justify-center rounded-md ${
+                    status === 'available' ? 'bg-green-100 text-green-600' :
+                    status === 'inuse' ? 'bg-yellow-100 text-yellow-600' :
+                    'bg-red-100 text-red-600'
+                  }`}>
+                    <Icon className="h-6 w-6" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-semibold">{resource.name}</h4>
+                      <Badge className="bg-purple-100 text-purple-800 text-xs">
+                        <Brain className="h-3 w-3 mr-1" />
+                        AI Managed
+                      </Badge>
                     </div>
-                    <Badge variant="outline">{conn.to}</Badge>
+                    <p className="text-sm text-muted-foreground">
+                      {resource.available_count} available • {resource.current_allocation} in use • {resource.total_count} total
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      Utilization: {Math.round(((resource.total_count - resource.available_count) / resource.total_count) * 100)}%
+                    </p>
+                    <div className="flex items-center gap-2 mt-2">
+                      <div className="bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded text-xs">
+                        <Brain className="h-3 w-3 inline mr-1" />
+                        AI Suggests: {Math.floor(resource.total_count * 0.8)} optimal allocation
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <div className="text-sm font-medium">
-                  {conn.patients} patients
+                
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      console.log('Minus clicked for:', resource.name);
+                      setResources(prev => prev.map(r => 
+                        r.id === resource.id 
+                          ? { ...r, available_count: Math.max(0, r.available_count - 1) }
+                          : r
+                      ));
+                    }}
+                    disabled={resource.available_count <= 0}
+                  >
+                    <Minus className="h-4 w-4" />
+                  </Button>
+                  
+                  <span className="min-w-[3rem] text-center font-mono text-lg">
+                    {resource.available_count}
+                  </span>
+                  
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      console.log('Plus clicked for:', resource.name);
+                      setResources(prev => prev.map(r => 
+                        r.id === resource.id 
+                          ? { ...r, available_count: Math.min(r.total_count, r.available_count + 1) }
+                          : r
+                      ));
+                    }}
+                    disabled={resource.available_count >= resource.total_count}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
                 </div>
+                
+                <Badge className={`${
+                  status === 'available' ? 'bg-green-100 text-green-800' :
+                  status === 'inuse' ? 'bg-yellow-100 text-yellow-800' :
+                  'bg-red-100 text-red-800'
+                }`}>
+                  {status === 'available' ? 'Available' :
+                   status === 'inuse' ? 'In Use' : 'Critical'}
+                </Badge>
               </div>
-            ))}
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>AI Recommendations</CardTitle>
-          <p className="text-sm text-muted-foreground">Intelligent resource allocation suggestions</p>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="flex items-start gap-3 p-4 rounded-md bg-primary/5 border border-primary/20">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
-              <Building2 className="h-4 w-4 text-primary" />
-            </div>
-            <div className="flex-1">
-              <h4 className="font-semibold">ICU Capacity Alert</h4>
-              <p className="text-sm text-muted-foreground mt-1">
-                ICU units at 90% capacity. Consider transferring stable patients to general ward to free up space.
-              </p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3 p-4 rounded-md bg-resource-available/5 border border-resource-available/20">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-resource-available/10">
-              <Ambulance className="h-4 w-4 text-resource-available" />
-            </div>
-            <div className="flex-1">
-              <h4 className="font-semibold">Ambulance Availability</h4>
-              <p className="text-sm text-muted-foreground mt-1">
-                3 ambulances currently available. No immediate action required.
-              </p>
-            </div>
-          </div>
+            );
+          })}
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }

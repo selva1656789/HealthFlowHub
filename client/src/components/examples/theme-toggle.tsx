@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { ThemeToggle } from '../theme-toggle'
 
 export default function ThemeToggleExample() {
-  return <ThemeToggle />
+  const [darkMode, setDarkMode] = useState(false);
+  return <ThemeToggle darkMode={darkMode} onToggle={setDarkMode} />
 }
