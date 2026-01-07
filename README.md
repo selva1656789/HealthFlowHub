@@ -85,6 +85,14 @@ npm run dev
 
 http://localhost:3000
 
+## Screenshot
+<img width="1920" height="1080" alt="Screenshot (1)" src="https://github.com/user-attachments/assets/8c0b856b-2572-40a1-bbb3-0a4277e8ecbd" />
+<img width="1920" height="1080" alt="Screenshot (2)" src="https://github.com/user-attachments/assets/4faf3b24-83be-4dd6-b830-ae160c8a9ffd" />
+<img width="1920" height="1080" alt="Screenshot (3)" src="https://github.com/user-attachments/assets/a6390453-803a-424f-9562-dc91d337c148" />
+<img width="1920" height="1080" alt="Screenshot (6)" src="https://github.com/user-attachments/assets/cd93022c-32c3-4301-b59f-3c9780b76c5f" />
+<img width="1920" height="1080" alt="Screenshot (8)" src="https://github.com/user-attachments/assets/59ea9618-1b67-44d0-a872-cfd58cf16a35" />
+
+
 ## 📊 Use Cases
 
 * Hospital management dashboards
