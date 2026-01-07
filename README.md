@@ -85,6 +85,17 @@ npm run dev
 
 http://localhost:3000
 
+## Screenshots
+
+![WhatsApp Image 2026-01-07 at 3 29 46 PM](https://github.com/user-attachments/assets/974dc25a-752a-43d0-b282-657c2a7c8dbb)
+
+![WhatsApp Image 2026-01-07 at 3 29 46 PM (1)](https://github.com/user-attachments/assets/cbead5b5-89e7-41c6-8807-03aeed82214d)
+
+![WhatsApp Image 2026-01-07 at 3 29 46 PM (3)](https://github.com/user-attachments/assets/3ed1764b-bfc8-460d-ba7a-4c37fb6d2c7f)
+![WhatsApp Image 2026-01-07 at 3 29 47 PM (1)](https://github.com/user-attachments/assets/943016d3-89d8-4466-9062-5be57ee9ad6e)
+![WhatsApp Image 2026-01-07 at 3 29 47 PM (6)](https://github.com/user-attac!
+[WhatsApp Image 2026-01-07 at 3 29 47 PM](https://github.com/user-attachments/assets/1d7b0dc1-c552-4268-96b5-f2bb000015ef)
+hments/assets/18a8483f-676b-4d25-90a0-addee129a6e3)
 
 ## 📊 Use Cases
 
